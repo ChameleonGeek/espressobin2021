@@ -15,6 +15,27 @@ This project is a collection of Bash scripts that will ask the user the right qu
 
 Right now, this project is NOT functional.  Since the EspressoBin is a very lightweight system, I'm taking advantage of wget to make the retreival of scripts ultra-simple.  Once this repo is functional, wget will be similarly used to ensure the most up-to-date scripts are available, even if the original microSD image has been sitting on your desk for a while.
 
+# The EspressoBin must be configured to boot from the microSD card
+- Install the prepped MicroSD card into the EspressoBin.
+- Connect an ethernet cable from your network to the EspressoBin's WAN port (the separate ethernet connector).
+- Connect a micro USB cable to the EspressoBin and your computer.
+  - The green power LED will turn on, and your computer will detect that a device has been connected.  The EspressoBin *is not* powered via USB and *can not* be configured without 12v power.
+- Connect 12v 2a power to the EspressoBin power connector.
+- Identify the serial port that the EspressoBin is connected to.
+- Open a serial terminal program and connect to the EspressoBin (previously identified port), 115200, 8, n, 1.
+  - I have had best success in Windows with PuTTY.
+- If the EspressoBin's "Marvell>>" prompt is not displayed in the terminal, press the EspressoBin reset button.
+  - If you have tried to configure the EspressoBin to boot from other media, reset the EspressoBin and press a key when prompted to stop autoboot.
+- Paste the following into the terminal program **_one command at a time_**:
+```
+setenv image_name boot/Image
+setenv fdt_name boot/armada-3720-community.dtb
+setenv bootmmc 'mmc dev 0; ext4load mmc 0:1 $kernel_addr $image_name;ext4load mmc 0:1 $fdt_addr $fdt_name;setenv bootargs $console root=/dev/mmcblk0p1 rw rootwait; booti $kernel_addr - $fdt_addr'
+setenv bootcmd 'mmc dev 0; ext4load mmc 0:1 $kernel_addr $image_name;ext4load mmc 0:1 $fdt_addr $fdt_name;setenv bootargs $console root=/dev/mmcblk0p1 rw rootwait; booti $kernel_addr - $fdt_addr'
+saveenv
+```
+- Type "reset" and hit enter.  The EspressoBin will now boot into Ubuntu.
+
 # osbuilder.sh
 This script will build the kernel for the EspressoBin and will create the OS image that will be put on the microSD card.  This script needs to be run on a Linux Desktop or Laptop.  I've tried building the kernel on a Raspberry Pi 3B+, and it just wasn't strong enough.  I'm developing and testing the script on an Ubuntu 20.04 Desktop image.
 
