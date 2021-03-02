@@ -63,17 +63,16 @@ sudo bash sd-image.sh
 
 ## Configure the EspressoBin to boot from the microSD card
 ### This process only has to be performed once.
-1. Install the prepped MicroSD card into the EspressoBin.
-2. Connect an ethernet cable from your network to the EspressoBin's WAN port (the separate ethernet connector).
-3. Connect a micro USB cable to the EspressoBin and your computer.
+1. Connect an ethernet cable from your network to the EspressoBin's WAN port (the separate ethernet connector).
+2. Connect a micro USB cable to the EspressoBin and your computer.
     1. The green power LED will turn on, and your computer will detect that a device has been connected.  The EspressoBin *is not* powered via USB and *can not* be configured without 12v power.
-4. Connect 12v 2a power to the EspressoBin power connector.
-5. Identify the serial port that the EspressoBin is connected to.
-6. Open a serial terminal program and connect to the EspressoBin (previously identified port), 115200, 8, n, 1.
+3. Connect 12v 2a power to the EspressoBin power connector.
+4. Identify the serial port that the EspressoBin is connected to.
+5. Open a serial terminal program and connect to the EspressoBin (previously identified port), 115200, 8, n, 1.
     1. I have had best success in Windows with PuTTY.
-7. If the EspressoBin's "Marvell>>" prompt is not displayed in the terminal, press the EspressoBin reset button.
+6. If the EspressoBin's "Marvell>>" prompt is not displayed in the terminal, press the EspressoBin reset button.
     1. If you have tried to configure the EspressoBin to boot from other media, reset the EspressoBin and press a key when prompted to stop autoboot.
-8. Paste the following into the terminal program **_one command at a time_**:
+7. Paste the following into the terminal program **_one command at a time_**:
 ```
 setenv image_name boot/Image
 setenv fdt_name boot/armada-3720-community.dtb
@@ -81,16 +80,21 @@ setenv bootmmc 'mmc dev 0; ext4load mmc 0:1 $kernel_addr $image_name;ext4load mm
 setenv bootcmd 'mmc dev 0; ext4load mmc 0:1 $kernel_addr $image_name;ext4load mmc 0:1 $fdt_addr $fdt_name;setenv bootargs $console root=/dev/mmcblk0p1 rw rootwait; booti $kernel_addr - $fdt_addr'
 saveenv
 ```
-9. Type "reset" and hit enter.  The EspressoBin will now reboot.  The EspressoBin will, of course, fail to boot if the microSD is not installed
+8. Type "reset" and hit enter.  The EspressoBin will now reboot.  The EspressoBin will, of course, fail to boot into Ubuntu if the microSD is not installed
+9. Before you insert the microSD card, the 12v power and micro USB cable must be disconnected so the EspressoBin is fully powered down.
 
 ## 4. firstboot.sh
 This script will automatically run when you first boot into Ubuntu.  It performs some initial setup which is necessary to begin the larger configuration script.
 It won't ask you any questions, but will display what it is doing as it is doing it.
 As soon as it is finished, it will run ebin-config.sh.
-1. Once the EspressoBin has completed booting into Ubuntu, log in.
+1. Install the imaged microSD card into the EspressoBin MicroUSB slot.
+2. Follow steps 1 through 5 of `Configure the EspressoBin to boot from the microSD card` above
+3. Once the EspressoBin has completed booting into Ubuntu, log in.
     1. The username is `root`
-    2. The password is blank.
+    2. There is no password
     3. Don't worry - ebin-config.sh will ask you for a new root password and assign it to root.  It will also ask for a username and password for an interactive user.
+
+The script will prevent itself from automatically running on future boots.
 
 ## 5. ebin-config.sh
 This script will be downloaded by firstboot.sh and will automatically run after firstboot.sh finishes.  This script is set up to ask as many questions as possible as early as possible.  I hate being tethered to a computer while it chugs away asking the occasional question as much as you do...
@@ -98,3 +102,6 @@ Unless you are very well-versed in Linux commands over SSH, I strongly recommend
 1. Please read ebin-config.md for explanations of the options presented by the script and be ready to answer the questions asked by the script.
 2. Once you have answered all the questions, the EspressoBin will download, install and configure the software you have selected per your answers.  This process can take an hour or so based on the configuration you select.
 3. The script will tell you when it has asked all its questions and you can walk away for a while.
+
+## 6. Final configuration
+These scripts install the selected software and perform basic configuration so that all software is functional.  Each user needs to ensure that they perform additional configuration to better suit their usage model and ensure proper security.  If you installed it, you can use webmin to perform a lot of these steps by connecting to the EspressoBin at https://&lt;ebin-ip-adress&gt;:10000, and loggin in as the interactive user.
